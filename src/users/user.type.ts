@@ -10,7 +10,4 @@ export class UserType {
 
   @Field()
   password: string;
-
-  @Field()
-  salt: string;
 }

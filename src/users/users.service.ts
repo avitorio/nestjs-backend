@@ -6,7 +6,6 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { AuthCredentialsInput } from '../auth/dto/auth-crendentials.input';
-import { User } from './user.entity';
 import { BCryptHashProvider } from './providers/hash-provider/implementations/bcrypt-hash.provider';
 import IHashProvider from './providers/hash-provider/models/hash-provider.interface';
 
