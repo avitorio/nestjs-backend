@@ -22,18 +22,17 @@ export class UsersService {
     private hashProvider: IHashProvider,
   ) {}
 
-  async signUp(authCredentialsInput: AuthCredentialsInput): Promise<User> {
+  async signUp(authCredentialsInput: AuthCredentialsInput): Promise<boolean> {
     const { email, password } = authCredentialsInput;
 
-    const user = this.userRepository.create();
+    const user = await this.userRepository.create();
 
     user.email = email;
     user.password = await this.hashProvider.generateHash(password);
 
     try {
       await user.save();
-      delete user.password;
-      return user;
+      return true;
     } catch (error) {
       if (error.code === '23505') {
         throw new ConflictException('User already exists');
