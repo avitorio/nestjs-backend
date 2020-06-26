@@ -8,7 +8,7 @@ import {
   CreateDateColumn,
   OneToOne,
 } from 'typeorm';
-import * as bcrypt from 'bcryptjs';
+import { hash } from 'bcryptjs';
 import { Task } from '../tasks/task.entity';
 
 @Entity('users')
@@ -35,8 +35,8 @@ export class User extends BaseEntity {
   tasks: Task[];
 
   async validatePassword(password: string): Promise<boolean> {
-    const hash = await bcrypt.hash(password, this.salt);
-    return hash === this.password;
+    const hashedValue = await hash(password, this.salt);
+    return hashedValue === this.password;
   }
 
   // @OneToOne(

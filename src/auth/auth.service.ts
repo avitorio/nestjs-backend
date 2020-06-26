@@ -16,10 +16,6 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signUp(authCredentialsInput: AuthCredentialsInput): Promise<boolean> {
-    return this.userRepository.signUp(authCredentialsInput);
-  }
-
   async signIn(
     authCredentialsInput: AuthCredentialsInput,
   ): Promise<SessionType> {
