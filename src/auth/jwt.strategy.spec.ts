@@ -31,17 +31,17 @@ describe('JwtStrategy', () => {
 
       userRepository.findOne.mockResolvedValue(user);
 
-      const result = await jwtStrategy.validate({ email: 'TestUser' });
+      const result = await jwtStrategy.validate({ email: 'jon@doe.com' });
 
       expect(userRepository.findOne).toHaveBeenCalledWith({
-        email: 'TestUser',
+        email: 'jon@doe.com',
       });
       expect(result).toEqual(user);
     });
 
     it('throws an unauthorized exception as user cannot be found', () => {
       userRepository.findOne.mockResolvedValue(null);
-      expect(jwtStrategy.validate({ email: 'TestUser' })).rejects.toThrow(
+      expect(jwtStrategy.validate({ email: 'jon@doe.com' })).rejects.toThrow(
         UnauthorizedException,
       );
     });

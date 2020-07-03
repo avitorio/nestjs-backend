@@ -1,7 +1,7 @@
 import { Resolver, Args, Query } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { ValidationPipe } from '@nestjs/common';
-import { AuthCredentialsInput } from './dto/auth-crendentials.input';
+import { AuthCredentialsInput } from './dto/auth-credentials.input';
 import { SessionType } from './session.type';
 
 @Resolver()

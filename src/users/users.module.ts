@@ -5,8 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRepository } from './user.repository';
 import { MailProvider } from '../shared/providers/mail/provider/mail.provider';
 import { UserTokensRepository } from './password-recovery/user-tokens.repository';
-import { BCryptHashProvider } from './providers/hash-provider/implementations/bcrypt-hash.provider';
 import { UsersResolver } from './users.resolver';
+import { BCryptHashProvider } from '../shared/providers/hash/provider/bcrypt-hash.provider';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { UsersResolver } from './users.resolver';
     UsersService,
     PasswordRecoveryEmailService,
     MailProvider,
-    BCryptHashProvider,
+    { provide: 'HashProvider', useClass: BCryptHashProvider }
   ],
 })
 export class UsersModule {}

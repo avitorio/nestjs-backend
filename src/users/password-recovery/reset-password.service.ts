@@ -1,7 +1,8 @@
-import { Logger, Injectable } from '@nestjs/common';
+import { Logger, Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from '../user.repository';
 import { UserTokensRepository } from './user-tokens.repository';
+import IHashProvider from '../../shared/providers/hash/models/hash-provider.interface';
 
 interface IRequest {
   token: string;
@@ -18,6 +19,9 @@ export class ResetPasswordService {
 
     @InjectRepository(UserTokensRepository)
     private userTokensRepository: UserTokensRepository,
+
+    @Inject('HashProvider')
+    private hashProvider: IHashProvider
   ) {}
 
   async execute({ token, password }: IRequest): Promise<void> {
@@ -33,7 +37,7 @@ export class ResetPasswordService {
       throw new Error('User does not exist');
     }
 
-    user.password = password;
+    user.password = await this.hashProvider.generateHash(password);
 
     await this.userRepository.save(user);
   }

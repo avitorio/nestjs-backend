@@ -7,7 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import * as config from 'config';
 import { AuthResolver } from './auth.resolver';
-import { BCryptHashProvider } from '../users/providers/hash-provider/implementations/bcrypt-hash.provider';
+import { BCryptHashProvider } from '../shared/providers/hash/provider/bcrypt-hash.provider';
 
 const jwtConfig = config.get('jwt');
 
@@ -22,7 +22,8 @@ const jwtConfig = config.get('jwt');
     }),
     TypeOrmModule.forFeature([UserRepository]),
   ],
-  providers: [AuthResolver, AuthService, JwtStrategy, BCryptHashProvider],
+  providers: [AuthResolver, AuthService, JwtStrategy, 
+    { provide: 'HashProvider', useClass: BCryptHashProvider }],
   exports: [JwtStrategy, PassportModule],
 })
 export class AuthModule {}

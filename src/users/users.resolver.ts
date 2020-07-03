@@ -1,7 +1,7 @@
 import { Resolver, Mutation, Args } from '@nestjs/graphql';
 import { ValidationPipe } from '@nestjs/common';
-import { AuthCredentialsInput } from '../auth/dto/auth-crendentials.input';
 import { UsersService } from './users.service';
+import { CreateUserInput } from './dto/create-user.input';
 
 @Resolver()
 export class UsersResolver {
@@ -9,9 +9,9 @@ export class UsersResolver {
 
   @Mutation(returns => Boolean)
   signUp(
-    @Args('authCredentialsInput', ValidationPipe)
-    authCredentialsInput: AuthCredentialsInput,
+    @Args('createUserInput', ValidationPipe)
+    createUserInput: CreateUserInput,
   ): Promise<boolean> {
-    return this.usersService.signUp(authCredentialsInput);
+    return this.usersService.signUp(createUserInput);
   }
 }

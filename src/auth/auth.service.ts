@@ -8,10 +8,9 @@ import { UserRepository } from '../users/user.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './jwt-payload.interface';
-import { AuthCredentialsInput } from './dto/auth-crendentials.input';
+import { AuthCredentialsInput } from './dto/auth-credentials.input';
 import { SessionType } from './session.type';
-import { BCryptHashProvider } from '../users/providers/hash-provider/implementations/bcrypt-hash.provider';
-import IHashProvider from '../users/providers/hash-provider/models/hash-provider.interface';
+import IHashProvider from '../shared/providers/hash/models/hash-provider.interface';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +21,7 @@ export class AuthService {
     private userRepository: UserRepository,
     private jwtService: JwtService,
 
-    @Inject(BCryptHashProvider)
+    @Inject('HashProvider')
     private hashProvider: IHashProvider,
   ) {}
 

@@ -3,18 +3,23 @@ import { UserRepository } from '../user.repository';
 import { PasswordRecoveryEmailService } from './password-recovery-email.service';
 import { MailProvider } from '../../shared/providers/mail/provider/mail.provider';
 import { UserTokensRepository } from './user-tokens.repository';
+import { UsersService } from '../users.service';
 
 const mockUser = { email: 'johndoe@example.com', password: '123123' };
 
 const mockUserRepository = () => ({
-  signUp: jest.fn(),
   create: jest.fn(),
   findByEmail: jest.fn(),
+});
+
+const mockUsersService = () => ({
+  signUp: jest.fn(),
 });
 
 let userRepository: UserRepository;
 let passwordRecoveryEmailService: PasswordRecoveryEmailService;
 let userTokensRepository: UserTokensRepository;
+let usersService: UsersService;
 
 describe('PasswordRecoveryEmail', () => {
   beforeEach(async () => {
@@ -24,10 +29,12 @@ describe('PasswordRecoveryEmail', () => {
         { provide: UserRepository, useFactory: mockUserRepository },
         MailProvider,
         UserTokensRepository,
+        { provide: UsersService, useFactory: mockUsersService },
       ],
     }).compile();
 
     userRepository = await module.get<UserRepository>(UserRepository);
+    usersService = await module.get<UsersService>(UsersService);
 
     passwordRecoveryEmailService = await module.get<
       PasswordRecoveryEmailService
@@ -43,7 +50,7 @@ describe('PasswordRecoveryEmail', () => {
       .fn()
       .mockResolvedValue({ email: 'johndoe@example.com' });
 
-    await userRepository.signUp(mockUser);
+    await usersService.signUp(mockUser);
 
     jest.spyOn(passwordRecoveryEmailService, 'execute');
 
@@ -69,7 +76,7 @@ describe('PasswordRecoveryEmail', () => {
       .fn()
       .mockResolvedValue({ email: 'johndoe@example.com' });
 
-    await userRepository.signUp(mockUser);
+    await usersService.signUp(mockUser);
 
     jest.spyOn(passwordRecoveryEmailService, 'execute');
     jest.spyOn(userTokensRepository, 'generate');

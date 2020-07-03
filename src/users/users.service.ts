@@ -5,9 +5,8 @@ import {
   ConflictException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { AuthCredentialsInput } from '../auth/dto/auth-crendentials.input';
-import { BCryptHashProvider } from './providers/hash-provider/implementations/bcrypt-hash.provider';
-import IHashProvider from './providers/hash-provider/models/hash-provider.interface';
+import { CreateUserInput } from './dto/create-user.input';
+import IHashProvider from '../shared/providers/hash/models/hash-provider.interface';
 
 @Injectable()
 export class UsersService {
@@ -17,12 +16,12 @@ export class UsersService {
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
 
-    @Inject(BCryptHashProvider)
+    @Inject('HashProvider')
     private hashProvider: IHashProvider,
   ) {}
 
-  async signUp(authCredentialsInput: AuthCredentialsInput): Promise<boolean> {
-    const { email, password } = authCredentialsInput;
+  async signUp(createUserInput: CreateUserInput): Promise<boolean> {
+    const { email, password } = createUserInput;
 
     const user = await this.userRepository.create();
 

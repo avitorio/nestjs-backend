@@ -4,12 +4,7 @@ import { ResetPasswordService } from './reset-password.service';
 import { MailProvider } from '../../shared/providers/mail/provider/mail.provider';
 import { UserTokensRepository } from './user-tokens.repository';
 import { uuid } from 'uuidv4';
-
-const mockUser = {
-  id: uuid(),
-  email: 'johndoe@example.com',
-  password: '123123',
-};
+import { BCryptHashProvider } from '../../shared/providers/hash/provider/bcrypt-hash.provider';
 
 const mockUserRepository = () => ({
   signUp: jest.fn((id, email, password) => {
@@ -31,6 +26,7 @@ describe('PasswordRecoveryEmail', () => {
         { provide: UserRepository, useFactory: mockUserRepository },
         MailProvider,
         UserTokensRepository,
+        { provide: 'HashProvider', useClass: BCryptHashProvider }
       ],
     }).compile();
 
