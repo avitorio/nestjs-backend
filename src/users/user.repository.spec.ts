@@ -29,5 +29,13 @@ describe('UserRepository', () => {
 
       expect(result?.email).toEqual('test@email.com');
     });
+
+    it('should return null as user is not found', async () => {
+      userRepository.findOne.mockResolvedValue(undefined);
+
+      const result = await userRepository.findByEmail('test@email.com');
+
+      expect(result).toEqual(null);
+    });
   });
 });

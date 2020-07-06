@@ -10,7 +10,7 @@ import IHashProvider from '../shared/providers/hash/models/hash-provider.interfa
 
 @Injectable()
 export class UsersService {
-  private logger = new Logger('AuthService');
+  private logger = new Logger('UsersService');
 
   constructor(
     @InjectRepository(UserRepository)

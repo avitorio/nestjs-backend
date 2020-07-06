@@ -4,6 +4,8 @@ import { PasswordRecoveryEmailService } from './password-recovery-email.service'
 import { MailProvider } from '../../shared/providers/mail/provider/mail.provider';
 import { UserTokensRepository } from './user-tokens.repository';
 import { UsersService } from '../users.service';
+import { UserTokensRepositoryFake } from './user-tokens.repository.fake';
+import MailProviderFake from '../../shared/providers/mail/fakes/mail.provider.fake';
 
 const mockUser = { email: 'johndoe@example.com', password: '123123' };
 
@@ -27,8 +29,8 @@ describe('PasswordRecoveryEmail', () => {
       providers: [
         PasswordRecoveryEmailService,
         { provide: UserRepository, useFactory: mockUserRepository },
-        MailProvider,
-        UserTokensRepository,
+        { provide: MailProvider, useClass: MailProviderFake },
+        { provide: UserTokensRepository, useClass: UserTokensRepositoryFake },
         { provide: UsersService, useFactory: mockUsersService },
       ],
     }).compile();
@@ -50,7 +52,8 @@ describe('PasswordRecoveryEmail', () => {
       .fn()
       .mockResolvedValue({ email: 'johndoe@example.com' });
 
-    await usersService.signUp(mockUser);
+    // await usersService.signUp(mockUser);
+    userTokensRepository;
 
     jest.spyOn(passwordRecoveryEmailService, 'execute');
 
@@ -64,6 +67,8 @@ describe('PasswordRecoveryEmail', () => {
   });
 
   it('should not send password recovery email to non-existent users', async () => {
+    userRepository.findByEmail = jest.fn().mockResolvedValue(undefined);
+
     await expect(async () => {
       await passwordRecoveryEmailService.execute({
         email: 'jonasdoe@example.com',

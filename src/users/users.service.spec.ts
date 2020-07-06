@@ -4,8 +4,8 @@ import {
   ConflictException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { BCryptHashProvider } from './providers/hash-provider/implementations/bcrypt-hash.provider';
 import { UsersService } from './users.service';
+import { BCryptHashProvider } from '../shared/providers/hash/provider/bcrypt-hash.provider';
 
 const mockCredentialsDto = {
   email: 'test@email.com',
@@ -18,7 +18,8 @@ describe('UserRepository', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [UsersService, UserRepository, BCryptHashProvider],
+      providers: [UsersService, UserRepository, 
+        { provide: 'HashProvider', useClass: BCryptHashProvider }],
     }).compile();
 
     userRepository = await module.get<UserRepository>(UserRepository);

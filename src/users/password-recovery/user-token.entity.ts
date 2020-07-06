@@ -21,10 +21,10 @@ export class UserToken extends BaseEntity {
   @ManyToOne(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type => User,
-    user => user.email,
+    user => user.id,
     { eager: false },
   )
-  email: string;
+  user: string;
 
   @CreateDateColumn()
   created_at: Date;

@@ -19,6 +19,8 @@ export class AuthService {
   constructor(
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
+    
+    @Inject(JwtService)
     private jwtService: JwtService,
 
     @Inject('HashProvider')

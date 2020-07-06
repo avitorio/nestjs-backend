@@ -2,31 +2,35 @@ import { Test } from '@nestjs/testing';
 import { UserRepository } from '../user.repository';
 import { ResetPasswordService } from './reset-password.service';
 import { MailProvider } from '../../shared/providers/mail/provider/mail.provider';
-import { UserTokensRepository } from './user-tokens.repository';
 import { uuid } from 'uuidv4';
 import { BCryptHashProvider } from '../../shared/providers/hash/provider/bcrypt-hash.provider';
+import { UserTokensRepositoryFake } from './user-tokens.repository.fake';
+import { UserTokensRepository } from './user-tokens.repository';
+import MailProviderFake from '../../shared/providers/mail/fakes/mail.provider.fake';
 
 const mockUserRepository = () => ({
   signUp: jest.fn((id, email, password) => {
     return { id, email, password };
   }),
   create: jest.fn(),
-  findByEmail: jest.fn(),
+  findOne: jest.fn(),
+  save: jest.fn(),
 });
 
 let userRepository: UserRepository;
 let resetPasswordService: ResetPasswordService;
 let userTokensRepository: UserTokensRepository;
 
-describe('PasswordRecoveryEmail', () => {
+describe('ResetPasswordService', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
         ResetPasswordService,
         { provide: UserRepository, useFactory: mockUserRepository },
-        MailProvider,
-        UserTokensRepository,
-        { provide: 'HashProvider', useClass: BCryptHashProvider }
+        { provide: UserRepository, useFactory: mockUserRepository },
+        { provide: MailProvider, useClass: MailProviderFake },
+        { provide: UserTokensRepository, useClass: UserTokensRepositoryFake },
+        { provide: 'HashProvider', useClass: BCryptHashProvider },
       ],
     }).compile();
 
@@ -42,7 +46,7 @@ describe('PasswordRecoveryEmail', () => {
   });
 
   it('should be able to reset the password', async () => {
-    userRepository.findByEmail = jest.fn().mockResolvedValue({
+    userRepository.findOne = jest.fn().mockResolvedValue({
       id: uuid(),
       email: 'johndoe@example.com',
       password: '123123',
@@ -61,14 +65,60 @@ describe('PasswordRecoveryEmail', () => {
       token,
     });
 
-    userRepository.findByEmail = jest.fn().mockResolvedValue({
+    userRepository.findOne = jest.fn().mockResolvedValue({
       id: uuid(),
       email: 'johndoe@example.com',
       password: '123456',
     });
 
-    const updatedUser = await userRepository.findByEmail('johndoe@example.com');
+    const updatedUser = await userRepository.findOne('johndoe@example.com');
 
+    expect(userTokensRepository.generate).toHaveBeenCalled();
     expect(updatedUser?.password).toBe('123456');
+  });
+
+  it('should not be able to reset the password with non-existing token', async () => {
+    expect(
+      resetPasswordService.execute({
+        token: 'non-existing',
+        password: '123456',
+      }),
+    ).rejects.toThrowError('User token does not exist');
+  });
+
+  it('should not be able to reset the password with non-existing user', async () => {
+    userTokensRepository.findByToken = jest.fn().mockResolvedValue(true);
+
+    expect(
+      resetPasswordService.execute({
+        token: 'non-existing',
+        password: '123456',
+      }),
+    ).rejects.toThrowError('User does not exist');
+  });
+
+  it('should not be able to reset the password after 2 hours', async () => {
+    userRepository.findOne = jest.fn().mockResolvedValue({
+      id: uuid(),
+      email: 'johndoe@example.com',
+      password: '123123',
+    });
+
+    const { token } = await userTokensRepository.generate(
+      'johndoe@example.com',
+    );
+
+    jest.spyOn(Date, 'now').mockImplementationOnce(() => {
+      const customDate = new Date();
+
+      return customDate.setHours(customDate.getHours() + 3);
+    });
+
+    await expect(
+      resetPasswordService.execute({
+        password: '123456',
+        token,
+      }),
+    ).rejects.toThrowError('Token has expired');
   });
 });
