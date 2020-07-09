@@ -1,11 +1,10 @@
 import { Test } from '@nestjs/testing';
 import { UserRepository } from '../user.repository';
 import { PasswordRecoveryEmailService } from './password-recovery-email.service';
-import { MailProvider } from '../../shared/providers/mail/provider/mail.provider';
 import { UserTokensRepository } from './user-tokens.repository';
 import { UsersService } from '../users.service';
 import { UserTokensRepositoryFake } from './user-tokens.repository.fake';
-import MailProviderFake from '../../shared/providers/mail/fakes/mail.provider.fake';
+import { MailerService } from '@nestjs-modules/mailer';
 
 const mockUser = { email: 'johndoe@example.com', password: '123123' };
 
@@ -16,6 +15,12 @@ const mockUserRepository = () => ({
 
 const mockUsersService = () => ({
   signUp: jest.fn(),
+});
+
+const mockMailerService = async () => ({
+  sendMail: jest.fn(async () => {
+    return true;
+  }),
 });
 
 let userRepository: UserRepository;
@@ -29,7 +34,7 @@ describe('PasswordRecoveryEmail', () => {
       providers: [
         PasswordRecoveryEmailService,
         { provide: UserRepository, useFactory: mockUserRepository },
-        { provide: MailProvider, useClass: MailProviderFake },
+        { provide: MailerService, useFactory: mockMailerService },
         { provide: UserTokensRepository, useClass: UserTokensRepositoryFake },
         { provide: UsersService, useFactory: mockUsersService },
       ],
@@ -45,6 +50,7 @@ describe('PasswordRecoveryEmail', () => {
     userTokensRepository = await module.get<UserTokensRepository>(
       UserTokensRepository,
     );
+    
   });
 
   it('should be able to recover the password by email', async () => {
@@ -52,7 +58,6 @@ describe('PasswordRecoveryEmail', () => {
       .fn()
       .mockResolvedValue({ email: 'johndoe@example.com' });
 
-    // await usersService.signUp(mockUser);
     userTokensRepository;
 
     jest.spyOn(passwordRecoveryEmailService, 'execute');

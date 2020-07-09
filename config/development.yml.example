@@ -6,3 +6,9 @@ db:
 
 jwt:
   secret: 'topSecret41'
+
+mail:
+  host: 'smtp.ethereal.email'
+  port: 587
+  user: config.ethereal.username
+  pass: config.ethereal.password

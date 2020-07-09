@@ -10,8 +10,6 @@ export class UserTokensRepository extends Repository<UserToken>
 
     await userToken.save();
 
-    console.log(userToken);
-
     return userToken;
   }
 

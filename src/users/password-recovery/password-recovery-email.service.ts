@@ -1,8 +1,9 @@
 import { Logger, Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from '../user.repository';
-import { MailProvider } from '../../shared/providers/mail/provider/mail.provider';
 import { UserTokensRepository } from './user-tokens.repository';
+import { MailerService } from '@nestjs-modules/mailer';
+import { resolve } from 'path';
 
 interface IRequest {
   email: string;
@@ -16,11 +17,11 @@ export class PasswordRecoveryEmailService {
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
 
-    @Inject(MailProvider)
-    private mailProvider: MailProvider,
-
     @InjectRepository(UserTokensRepository)
     private userTokensRepository: UserTokensRepository,
+
+    @Inject(MailerService)
+    private readonly mailerService: MailerService
   ) {}
 
   async execute({ email }: IRequest): Promise<void> {
@@ -32,9 +33,21 @@ export class PasswordRecoveryEmailService {
 
     const { token } = await this.userTokensRepository.generate(user.id);
 
-    await this.mailProvider.sendMail(
-      email,
-      `Password recovery email sent: ${token}`,
-    );
+    await this
+      .mailerService
+      .sendMail({
+        to: email,
+        subject: 'Your password recovery request',
+        template: resolve(__dirname, 'views', 'password-recovery-email.hbs'),
+        context: { 
+          token
+        },
+      })
+      .then(() => {
+        this.logger.log(`Password recovery email sent to ${email}`);
+      })
+      .catch((err) => {
+        this.logger.error(`Password recovery email not sent to ${email} with error: ${err}`);
+      });
   }
 }

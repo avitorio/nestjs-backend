@@ -1,12 +1,11 @@
 import { Test } from '@nestjs/testing';
 import { UserRepository } from '../user.repository';
 import { ResetPasswordService } from './reset-password.service';
-import { MailProvider } from '../../shared/providers/mail/provider/mail.provider';
 import { uuid } from 'uuidv4';
 import { BCryptHashProvider } from '../../shared/providers/hash/provider/bcrypt-hash.provider';
 import { UserTokensRepositoryFake } from './user-tokens.repository.fake';
 import { UserTokensRepository } from './user-tokens.repository';
-import MailProviderFake from '../../shared/providers/mail/fakes/mail.provider.fake';
+import { MailerService } from '@nestjs-modules/mailer';
 
 const mockUserRepository = () => ({
   signUp: jest.fn((id, email, password) => {
@@ -15,6 +14,12 @@ const mockUserRepository = () => ({
   create: jest.fn(),
   findOne: jest.fn(),
   save: jest.fn(),
+});
+
+const mockMailerService = async () => ({
+  sendMail: jest.fn(async () => {
+    return true;
+  }),
 });
 
 let userRepository: UserRepository;
@@ -28,7 +33,7 @@ describe('ResetPasswordService', () => {
         ResetPasswordService,
         { provide: UserRepository, useFactory: mockUserRepository },
         { provide: UserRepository, useFactory: mockUserRepository },
-        { provide: MailProvider, useClass: MailProviderFake },
+        { provide: MailerService, useFactory: mockMailerService },
         { provide: UserTokensRepository, useClass: UserTokensRepositoryFake },
         { provide: 'HashProvider', useClass: BCryptHashProvider },
       ],
