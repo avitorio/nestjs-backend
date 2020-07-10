@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
 import IHashProvider from '../shared/providers/hash/models/hash-provider.interface';
+import { UpdateUserInput } from './dto/update-user.input';
+import { User } from './user.entity';
 
 @Injectable()
 export class UsersService {
@@ -38,5 +40,40 @@ export class UsersService {
         throw new InternalServerErrorException();
       }
     }
+  }
+
+  async updateUser(
+    updateUserInput: UpdateUserInput,
+    user: User,
+  ): Promise<User> {
+    const { email, old_password, password } = updateUserInput;
+
+    if (email !== user.email) {
+      const emailExists = await this.userRepository.findByEmail(email);
+
+      if (emailExists) {
+        throw new ConflictException('Email is already used.');
+      }
+    }
+
+    if (password && !old_password) {
+      throw new Error('Old password required to set a new password.');
+    }
+
+    const oldPasswordMatches = await this.hashProvider.compareHash(
+      old_password,
+      user.password,
+    );
+
+    if (!oldPasswordMatches) {
+      throw new Error('Old password is incorrect.');
+    }
+
+    user.email = email;
+    user.password = await this.hashProvider.generateHash(password);
+
+    await this.userRepository.save(user);
+
+    return user;
   }
 }

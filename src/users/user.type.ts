@@ -7,7 +7,4 @@ export class UserType {
 
   @Field()
   email: string;
-
-  @Field()
-  password: string;
 }
