@@ -55,9 +55,9 @@ describe('AuthService', () => {
     it('returns Jwt token as validation is successful', async () => {
       userRepository.findOne.mockResolvedValue(user);
 
-      const {accessToken} = await authService.signIn(mockCredentialsDto);
+      const {token} = await authService.signIn(mockCredentialsDto);
     
-      const tokenParts = accessToken.split('.');
+      const tokenParts = token.split('.');
 
       expect(tokenParts.length).toBe(3);
 

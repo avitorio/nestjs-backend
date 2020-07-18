@@ -39,8 +39,8 @@ export class AuthService {
       (await this.hashProvider.compareHash(password, user.password))
     ) {
       const payload: JwtPayload = { email };
-      const accessToken = await this.jwtService.sign(payload);
-      return { accessToken, user };
+      const token = await this.jwtService.sign(payload);
+      return { token, user };
     } else {
       throw new UnauthorizedException('Invalid credentials');
     }

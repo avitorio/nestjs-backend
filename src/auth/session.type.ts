@@ -4,7 +4,7 @@ import { UserType } from '../users/user.type';
 @ObjectType('Session')
 export class SessionType {
   @Field()
-  accessToken: string;
+  token: string;
 
   @Field()
   user: UserType;
