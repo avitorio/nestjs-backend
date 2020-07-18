@@ -2,7 +2,6 @@ import {
   IsString,
   MinLength,
   MaxLength,
-  Matches,
   IsEmail,
   IsOptional,
 } from 'class-validator';
@@ -18,21 +17,15 @@ export class UpdateUserInput {
 
   @IsOptional()
   @IsString()
-  @MinLength(8)
+  @MinLength(6)
   @MaxLength(20)
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'Old Password is Too Weak',
-  })
   @Field()
   old_password: string;
 
   @IsOptional()
   @IsString()
-  @MinLength(8)
+  @MinLength(6)
   @MaxLength(20)
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'Password too weak',
-  })
   @Field()
   password: string;
 }
