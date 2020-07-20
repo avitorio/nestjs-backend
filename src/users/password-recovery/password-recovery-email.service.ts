@@ -21,33 +21,36 @@ export class PasswordRecoveryEmailService {
     private userTokensRepository: UserTokensRepository,
 
     @Inject(MailerService)
-    private readonly mailerService: MailerService
+    private readonly mailerService: MailerService,
   ) {}
 
-  async execute({ email }: IRequest): Promise<void> {
+  async execute({ email }: IRequest): Promise<boolean> {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
-      throw new Error('User does not exist');
+      throw new Error('User does not exist.');
     }
 
     const { token } = await this.userTokensRepository.generate(user.id);
 
-    await this
-      .mailerService
+    await this.mailerService
       .sendMail({
         to: email,
         subject: 'Your password recovery request',
         template: resolve(__dirname, 'views', 'password-recovery-email.hbs'),
-        context: { 
-          token
+        context: {
+          token,
         },
       })
       .then(() => {
         this.logger.log(`Password recovery email sent to ${email}`);
       })
-      .catch((err) => {
-        this.logger.error(`Password recovery email not sent to ${email} with error: ${err}`);
+      .catch(err => {
+        this.logger.error(
+          `Password recovery email not sent to ${email} with error: ${err}`,
+        );
       });
+
+    return true;
   }
 }
