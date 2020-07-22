@@ -14,7 +14,7 @@ export class UserTokensRepository extends Repository<UserToken>
   }
 
   public async findByToken(token: string): Promise<UserToken | undefined> {
-    const userToken = this.findOne({ token });
+    const userToken = this.findOne({ where: { token }, loadRelationIds: true });
 
     if (!userToken) {
       throw new Error('Token not found');
