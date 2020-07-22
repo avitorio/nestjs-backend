@@ -1,4 +1,4 @@
-import { IsString, MinLength, MaxLength, Matches } from 'class-validator';
+import { IsString, MinLength, MaxLength } from 'class-validator';
 import { InputType, Field } from '@nestjs/graphql';
 
 @InputType()
@@ -9,11 +9,8 @@ export class ResetPasswordInput {
   token: string;
 
   @IsString()
-  @MinLength(8)
+  @MinLength(6)
   @MaxLength(20)
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'Password too weak',
-  })
   @Field()
   password: string;
 }
